@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudhanshu — Wet Utilities Engineering Notes</title>
+<meta name="description" content="Field notes and technical writing on wet utilities, hydraulic modelling, and infrastructure design.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0D2B3A;
+    --navy-deep:#081C27;
+    --cyan:#9FD8E8;
+    --cyan-dim:#5C8A99;
+    --flow:#3FA0C4;
+    --paper:#E7E9E1;
+    --paper-dim:#D9DCD2;
+    --amber:#D98E3F;
+    --ink:#16232B;
+    --text-light:#EAF3F5;
+
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Newsreader', serif;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--body);
+    line-height:1.6;
+  }
+  a{color:inherit;}
+
+  /* ---------- grid paper texture ---------- */
+  .blueprint{
+    background-color:var(--navy);
+    background-image:
+      linear-gradient(var(--navy-deep) 1px, transparent 1px),
+      linear-gradient(90deg, var(--navy-deep) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--text-light);
+    position:relative;
+  }
+
+  /* ---------- sheet border / crop marks ---------- */
+  .sheet{
+    position:relative;
+    border:1px solid var(--cyan-dim);
+    margin:16px;
+  }
+  .sheet::before,.sheet::after,
+  .sheet .corner-tl, .sheet .corner-br{
+    content:'';
+    position:absolute;
+    width:14px;height:14px;
+  }
+  .corner-tl{top:-1px;left:-1px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+  .corner-br{bottom:-1px;right:-1px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+
+  /* ---------- nav ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:var(--navy);
+    border-bottom:1px solid var(--cyan-dim);
+  }
+  nav{
+    max-width:1080px; margin:0 auto;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px;
+  }
+  .logo{
+    font-family:var(--mono); letter-spacing:0.5px;
+    color:var(--cyan); font-size:14px; text-decoration:none;
+  }
+  .logo b{color:var(--text-light); font-family:var(--display);}
+  .navlinks{display:flex; gap:28px; list-style:none;}
+  .navlinks a{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.5px;
+    color:var(--text-light); text-decoration:none; opacity:0.85;
+    padding-bottom:2px; border-bottom:1px solid transparent;
+  }
+  .navlinks a:hover{opacity:1; border-color:var(--amber);}
+
+  /* ---------- hero ---------- */
+  .hero{padding:0;}
+  .hero-inner{
+    max-width:1080px; margin:0 auto;
+    padding:80px 24px 60px;
+  }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:2px;
+    color:var(--amber); text-transform:uppercase; margin-bottom:18px;
+  }
+  h1.headline{
+    font-family:var(--display); font-weight:600;
+    font-size:clamp(2.2rem, 5vw, 3.6rem);
+    line-height:1.08; color:var(--text-light);
+    max-width:760px;
+  }
+  h1.headline em{color:var(--cyan); font-style:normal;}
+  .hero-sub{
+    font-family:var(--body); font-size:1.15rem; color:var(--text-light);
+    opacity:0.85; max-width:560px; margin-top:20px;
+  }
+
+  /* title block — signature element */
+  .title-block{
+    margin-top:56px; max-width:640px;
+    border:1px solid var(--cyan-dim);
+    font-family:var(--mono); font-size:12px;
+  }
+  .tb-row{display:flex; border-bottom:1px solid var(--cyan-dim);}
+  .tb-row:last-child{border-bottom:none;}
+  .tb-cell{
+    flex:1; padding:9px 12px; border-right:1px solid var(--cyan-dim);
+  }
+  .tb-cell:last-child{border-right:none;}
+  .tb-label{color:var(--cyan-dim); display:block; font-size:10px; letter-spacing:1px; margin-bottom:3px;}
+  .tb-value{color:var(--text-light);}
+
+  /* ---------- section shell ---------- */
+  section{max-width:1080px; margin:0 auto; padding:70px 24px;}
+  .section-head{
+    display:flex; align-items:baseline; gap:14px; margin-bottom:36px;
+  }
+  .section-num{font-family:var(--mono); color:var(--cyan-dim); font-size:13px;}
+  .blueprint .section-num{color:var(--cyan-dim);}
+  body > section:not(.blueprint) .section-num{color:var(--flow);}
+  h2.section-title{
+    font-family:var(--display); font-weight:600; font-size:1.7rem;
+  }
+  .rule{
+    height:1px; background:var(--paper-dim); flex:1;
+  }
+  .blueprint .rule{background:var(--cyan-dim); opacity:0.4;}
+
+  /* ---------- about ---------- */
+  .about-grid{
+    display:grid; grid-template-columns:1.3fr 1fr; gap:48px;
+  }
+  .about-grid p{margin-bottom:16px; max-width:56ch;}
+  .legend{
+    border:1px solid var(--paper-dim); padding:20px;
+  }
+  .legend-title{
+    font-family:var(--mono); font-size:11px; letter-spacing:1.5px;
+    color:var(--flow); margin-bottom:14px;
+  }
+  .legend-item{
+    display:flex; gap:10px; align-items:baseline;
+    font-family:var(--mono); font-size:13px;
+    padding:8px 0; border-top:1px solid var(--paper-dim);
+  }
+  .legend-item:first-of-type{border-top:none;}
+  .legend-mark{color:var(--amber); width:18px;}
+
+  /* ---------- blog list ---------- */
+  .post-list{display:flex; flex-direction:column; gap:1px; background:var(--paper-dim);}
+  .post-row{
+    background:var(--paper); padding:22px 18px;
+    display:grid; grid-template-columns:70px 1fr auto; gap:18px; align-items:baseline;
+    cursor:pointer; transition:background 0.15s ease;
+  }
+  .post-row:hover{background:#fff;}
+  .post-sheet-no{font-family:var(--mono); font-size:12px; color:var(--flow);}
+  .post-title{font-family:var(--display); font-weight:600; font-size:1.15rem;}
+  .post-meta{font-family:var(--mono); font-size:11px; color:var(--cyan-dim); display:block; margin-top:6px;}
+  .post-excerpt{font-family:var(--body); font-size:0.95rem; color:#3d4a52; margin-top:6px; max-width:60ch;}
+  .post-date{font-family:var(--mono); font-size:12px; color:#6b7680; white-space:nowrap;}
+
+  /* ---------- post detail ---------- */
+  #post-view{display:none;}
+  #post-view.active{display:block;}
+  #home-view.hidden{display:none;}
+  .post-detail-inner{max-width:720px; margin:0 auto; padding:60px 24px;}
+  .back-link{
+    font-family:var(--mono); font-size:12px; color:var(--flow);
+    text-decoration:none; display:inline-block; margin-bottom:30px;
+  }
+  .back-link:hover{text-decoration:underline;}
+  .post-detail-title{
+    font-family:var(--display); font-weight:600; font-size:2.1rem; margin-bottom:14px;
+  }
+  .post-detail-meta{
+    font-family:var(--mono); font-size:12px; color:var(--flow); margin-bottom:36px;
+    display:flex; gap:18px; flex-wrap:wrap;
+  }
+  .post-detail-body p{margin-bottom:18px; font-size:1.05rem; max-width:65ch;}
+  .post-detail-body h3{
+    font-family:var(--display); font-weight:600; font-size:1.25rem; margin:32px 0 12px;
+  }
+
+  /* ---------- contact ---------- */
+  .contact-box{
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:20px;
+    padding:36px; border:1px solid var(--cyan-dim);
+  }
+  .contact-box a.cta{
+    font-family:var(--mono); font-size:13px; color:var(--amber);
+    text-decoration:none; border:1px solid var(--amber); padding:10px 18px;
+  }
+  .contact-box a.cta:hover{background:var(--amber); color:var(--navy-deep);}
+
+  footer{
+    text-align:center; padding:30px 24px; font-family:var(--mono);
+    font-size:11px; color:var(--cyan-dim); background:var(--navy);
+  }
+
+  @media(max-width:720px){
+    .navlinks{display:none;}
+    .about-grid{grid-template-columns:1fr;}
+    .post-row{grid-template-columns:1fr; gap:6px;}
+    .tb-row{flex-wrap:wrap;}
+    .tb-cell{flex:1 1 50%; border-bottom:1px solid var(--cyan-dim);}
+  }
+
+  :focus-visible{outline:2px solid var(--amber); outline-offset:2px;}
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a class="logo" href="#/"><b>SUDHANSHU</b> / wet utilities notes</a>
+    <ul class="navlinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#expertise">Expertise</a></li>
+      <li><a href="#blog">Notes</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div id="home-view">
+
+<div class="hero blueprint">
+  <div class="hero-inner">
+    <div class="eyebrow">Design Engineer — Wet Utilities</div>
+    <h1 class="headline">Notes from the <em>pressure side</em><br>of infrastructure design.</h1>
+    <p class="hero-sub">Field-tested writing on hydraulic modelling, UAE authority coordination, and the systems that move water, waste, and safety through a city — drawn from real project work, not textbooks.</p>
+
+    <div class="title-block">
+      <div class="tb-row">
+        <div class="tb-cell"><span class="tb-label">SHEET</span><span class="tb-value">INDEX / 001</span></div>
+        <div class="tb-cell"><span class="tb-label">SCALE</span><span class="tb-value">NOT TO SCALE</span></div>
+        <div class="tb-cell"><span class="tb-label">REV</span><span class="tb-value">A</span></div>
+      </div>
+      <div class="tb-row">
+        <div class="tb-cell"><span class="tb-label">DRAWN BY</span><span class="tb-value">S. — Design Engineer</span></div>
+        <div class="tb-cell"><span class="tb-label">DISCIPLINE</span><span class="tb-value">Wet Utilities</span></div>
+        <div class="tb-cell"><span class="tb-label">STATUS</span><span class="tb-value">Ongoing</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="about">
+  <div class="section-head">
+    <span class="section-num">01</span>
+    <h2 class="section-title">About</h2>
+    <div class="rule"></div>
+  </div>
+  <div class="about-grid">
+    <div>
+      <p>I design and coordinate water supply, sewerage, irrigation, and firefighting networks for major developments — the kind of infrastructure that only gets noticed when it fails. Most of my work happens in the gap between hydraulic theory and what an authority will actually approve.</p>
+      <p>This site is where I write that gap down: modelling workflows, NOC submission lessons, coefficient tables, and the occasional argument for why a spec should be questioned rather than copied. Edit this paragraph freely — it's a placeholder for your own voice.</p>
+    </div>
+    <div class="legend">
+      <div class="legend-title">LEGEND — SITE SECTIONS</div>
+      <div class="legend-item"><span class="legend-mark">＋</span> About — who's writing this</div>
+      <div class="legend-item"><span class="legend-mark">＋</span> Expertise — core disciplines</div>
+      <div class="legend-item"><span class="legend-mark">＋</span> Notes — the blog itself</div>
+      <div class="legend-item"><span class="legend-mark">＋</span> Contact — get in touch</div>
+    </div>
+  </div>
+</section>
+
+<section id="expertise" class="blueprint">
+  <div class="section-head">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Expertise</h2>
+    <div class="rule"></div>
+  </div>
+  <div class="legend" style="border-color:var(--cyan-dim);">
+    <div class="legend-item"><span class="legend-mark">01</span> Water Supply Networks — distribution modelling, demand analysis</div>
+    <div class="legend-item"><span class="legend-mark">02</span> Sewerage & Drainage — gravity/pressure networks, SewerGEMS</div>
+    <div class="legend-item"><span class="legend-mark">03</span> Irrigation Systems — landscape and agricultural network design</div>
+    <div class="legend-item"><span class="legend-mark">04</span> Firefighting Infrastructure — hydrant networks, flow/pressure compliance</div>
+    <div class="legend-item"><span class="legend-mark">05</span> Hydraulic Modelling — WaterGEMS, InfoWorks ICM, HEC suite</div>
+    <div class="legend-item"><span class="legend-mark">06</span> Authority Coordination — DEWA, Dubai Municipality, Civil Defence, RTA</div>
+  </div>
+</section>
+
+<section id="blog">
+  <div class="section-head">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Notes</h2>
+    <div class="rule"></div>
+  </div>
+  <div class="post-list" id="post-list"></div>
+</section>
+
+<section id="contact">
+  <div class="section-head">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Contact</h2>
+    <div class="rule"></div>
+  </div>
+  <div class="contact-box">
+    <div>
+      <p style="font-family:var(--mono); font-size:13px; color:#3d4a52;">Open to discussing hydraulic modelling, wet utilities design, or the odd argument about Hazen-Williams coefficients.</p>
+    </div>
+    <a class="cta" href="mailto:your.email@example.com">EMAIL — REPLACE THIS ADDRESS</a>
+  </div>
+</section>
+
+</div><!-- /home-view -->
+
+<div id="post-view">
+  <div class="post-detail-inner">
+    <a href="#/" class="back-link">← Back to index</a>
+    <div class="post-detail-title" id="pd-title"></div>
+    <div class="post-detail-meta" id="pd-meta"></div>
+    <div class="post-detail-body" id="pd-body"></div>
+  </div>
+</div>
+
+<footer>
+  BUILT AS A STATIC SHEET — NO BACKEND REQUIRED — EDIT THE <span style="color:var(--amber)">POSTS</span> ARRAY TO ADD NOTES
+</footer>
+
+<script>
+/* =========================================================
+   ADD NEW POSTS HERE.
+   Each post needs: id (unique, no spaces), title, date,
+   tags (array of strings), excerpt (1-2 lines), body (array
+   of paragraph strings — start a string with "## " to make
+   it a subheading).
+   Newest posts should go first; sheet numbers are automatic.
+   ========================================================= */
+const POSTS = [
+  {
+    id: "digital-twin-wet-utilities",
+    title: "What a Digital Twin Actually Needs From Wet Utilities Data",
+    date: "2026-06-12",
+    tags: ["Digital Twin", "GIS", "SCADA"],
+    excerpt: "Most digital twin pitches start with the dashboard. The real bottleneck is upstream — in how clean your pipe network data is before it ever reaches a model.",
+    body: [
+      "A digital twin for a water network is only as good as the asset data feeding it. Before any real-time layer, SCADA feed, or predictive model adds value, the underlying GIS and hydraulic model need to agree with each other — same pipe IDs, same elevations, same as-built status.",
+      "## Where projects actually stall",
+      "In practice, the gap is rarely the software. It's reconciling as-built drawings against design models that were never updated after construction, and getting operations teams to trust a model that doesn't yet match what they see in the field.",
+      "## A more realistic starting point",
+      "Rather than building the full real-time twin on day one, a static, validated hydraulic model — kept current through a defined update process — is a better foundation. Add SCADA and live sensor data once the base model is trustworthy, not before."
+    ]
+  },
+  {
+    id: "hazen-williams-uae",
+    title: "Hazen-Williams C-Values: What UAE Practice Actually Assumes",
+    date: "2026-05-03",
+    tags: ["Hydraulics", "Design Standards"],
+    excerpt: "The Hazen-Williams equation is convenient, but it quietly assumes a flow regime that not every network condition satisfies.",
+    body: [
+      "Hazen-Williams remains the default friction-loss equation across most UAE water network design guides, largely because it's simple to apply and authorities are familiar with the coefficient tables. But the equation is only valid for fully turbulent flow, generally above a Reynolds number of roughly 100,000.",
+      "## Where it gets used past its limits",
+      "Low-flow branches, oversized pipes at the tail end of a network, or early-life networks running well below design demand can sit outside that turbulent range without anyone checking. The equation still returns a number — it just isn't a reliable one.",
+      "## The practical takeaway",
+      "For most trunk mains under design flow, Hazen-Williams with standard UAE C-values is fine. For edge cases — long, under-loaded branches or unusual pipe materials — cross-checking against Darcy-Weisbach is worth the extra five minutes before the number goes into a report."
+    ]
+  },
+  {
+    id: "dewa-noc-lessons",
+    title: "Three Things That Slow Down a DEWA NOC Submission",
+    date: "2026-03-18",
+    tags: ["NOC", "Authority Coordination"],
+    excerpt: "None of these are technical failures. They're coordination failures that show up as technical comments.",
+    body: [
+      "Most DEWA and Dubai Municipality NOC comment cycles that drag on for months don't come from bad hydraulic design — they come from corridor conflicts and drawing inconsistencies that were avoidable earlier in the process.",
+      "## 1. Utility corridor clashes found late",
+      "Running a Navisworks clash check against 11kV/132kV corridors after the model is 90% complete means every clash is now a redesign, not a routing choice.",
+      "## 2. Cross-section drawings that don't match the model",
+      "Authorities compare submitted cross-sections against the hydraulic model's pipe sizes and levels line by line. A mismatch — even a rounding difference — generates a comment and a resubmission cycle.",
+      "## 3. Assumptions not stated up front",
+      "Design criteria (peak factors, minimum residual pressure, C-values used) that aren't stated clearly in the submission invite the reviewer to challenge the number instead of the assumption behind it."
+    ]
+  }
+];
+
+function fmtDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'});
+}
+
+function renderList(){
+  const list = document.getElementById('post-list');
+  list.innerHTML = POSTS.map((p, i) => {
+    const num = String(POSTS.length - i).padStart(2,'0');
+    return `
+      <div class="post-row" onclick="location.hash='#/post/${p.id}'">
+        <div class="post-sheet-no">SH.${num}</div>
+        <div>
+          <div class="post-title">${p.title}</div>
+          <span class="post-meta">${p.tags.join(' · ')}</span>
+          <div class="post-excerpt">${p.excerpt}</div>
+        </div>
+        <div class="post-date">${fmtDate(p.date)}</div>
+      </div>`;
+  }).join('');
+}
+
+function renderPost(id){
+  const p = POSTS.find(post => post.id === id);
+  if(!p) { location.hash = '#/'; return; }
+  document.getElementById('pd-title').textContent = p.title;
+  document.getElementById('pd-meta').innerHTML =
+    `<span>${fmtDate(p.date)}</span><span>${p.tags.join(' · ')}</span>`;
+  document.getElementById('pd-body').innerHTML = p.body.map(block => {
+    if(block.startsWith('## ')) return `<h3>${block.slice(3)}</h3>`;
+    return `<p>${block}</p>`;
+  }).join('');
+}
+
+function router(){
+  const hash = location.hash || '#/';
+  const home = document.getElementById('home-view');
+  const postView = document.getElementById('post-view');
+  const match = hash.match(/^#\/post\/(.+)$/);
+  if(match){
+    renderPost(decodeURIComponent(match[1]));
+    home.classList.add('hidden');
+    postView.classList.add('active');
+    window.scrollTo(0,0);
+  } else {
+    home.classList.remove('hidden');
+    postView.classList.remove('active');
+  }
+}
+
+renderList();
+window.addEventListener('hashchange', router);
+router();
+</script>
+
+</body>
+</html>
